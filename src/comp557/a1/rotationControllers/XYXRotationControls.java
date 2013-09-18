@@ -38,11 +38,9 @@ public class XYXRotationControls implements RotationController {
 	}
 	
 	public void applyTransformation( GL2 gl ) {
-		// TODO: Objective 2: Use the parameters to apply the appropriate rotation to the OpenGL modelview matrix.
-		
-		
-		
-		
+		gl.glRotated(X2.getValue(), 1, 0, 0);
+		gl.glRotated(Y.getValue(), 0, 1, 0);
+		gl.glRotated(X.getValue(), 1, 0, 0);
 	}
 
 }
