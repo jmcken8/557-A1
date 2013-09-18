@@ -111,7 +111,7 @@ public class TrackBall implements MouseListener, MouseMotionListener, RotationCo
     	
     	
     	double x = point.getX() - (width / 2);
-    	double y = point.getY() - (height / 2);
+    	double y = -(point.getY() - (height / 2));
     	double z = 0;
     	
     	if((x*x) + (y*y) < (r*r))
@@ -128,14 +128,14 @@ public class TrackBall implements MouseListener, MouseMotionListener, RotationCo
     
     public void mouseDragged(MouseEvent e) {
         setTrackballVector( e.getPoint(), tbv1 );
-                
+          
     	// TODO: Objective 6: Implement the TrackBall rotation
         Vector3d axis = new Vector3d();
         
-        axis.cross(tbv1, tbv0);
-              
-        double angle = tbv1.dot(tbv0);
-        angle = angle / (2 * Math.PI) * trackballGain.getValue();
+        axis.cross(tbv0, tbv1);
+        
+        double angle = tbv0.dot(tbv1) / (tbv1.length() * tbv0.length());
+        angle = Math.acos(angle) * trackballGain.getValue();
         
         AxisAngle4d axisAngle = new AxisAngle4d();
         axisAngle.set(axis, angle);
@@ -145,11 +145,7 @@ public class TrackBall implements MouseListener, MouseMotionListener, RotationCo
         transform.mul(bakedTransformation);
         
         bakedTransformation.set(transform);
-        
-        
-        
-        
-        
+
         // copy current vector to previous 
         tbv0.set( tbv1 );
     }
