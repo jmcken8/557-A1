@@ -73,12 +73,35 @@ public class XYBall implements MouseListener, MouseMotionListener, RotationContr
     	previousPosition.setLocation( e.getPoint() );
     }
     
+    private boolean lastWasX = true;
+    
     public void mouseDragged(MouseEvent e) {
         // TODO: Objective 5: update the bakedTransformation to account for mouse movement
-    	
+    	Point currentPosition = e.getPoint();
+        double yAngle = gain.getValue() * (double) (currentPosition.getX() - previousPosition.getX());
+        double xAngle = gain.getValue() * (double) (currentPosition.getY() - previousPosition.getY());
         
-                    
-    	
+        Matrix4d xTransformation = new Matrix4d();
+        Matrix4d yTransformation = new Matrix4d();
+        
+        xTransformation.rotX(xAngle);
+        yTransformation.rotY(yAngle);
+        
+        if(lastWasX)
+        {
+        	xTransformation.mul(bakedTransformation);
+        	yTransformation.mul(xTransformation);
+        	bakedTransformation.set(yTransformation);
+        }
+        else
+        {
+        	yTransformation.mul(bakedTransformation);
+        	xTransformation.mul(yTransformation);
+        	bakedTransformation.set(xTransformation);
+        }
+        
+        lastWasX = !lastWasX;
+        
     	previousPosition.setLocation( e.getPoint() );
     }
 
