@@ -12,9 +12,13 @@ import java.awt.event.MouseMotionListener;
 import javax.media.opengl.GL2;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.vecmath.AxisAngle4d;
 import javax.vecmath.Matrix3d;
 import javax.vecmath.Matrix4d;
 import javax.vecmath.Vector3f;
+import javax.vecmath.Vector3d;
+import javax.vecmath.Vector4d;
+import javax.vecmath.Vector4f;
 
 import mintools.parameters.DoubleParameter;
 import mintools.swing.VerticalFlowPanel;
@@ -56,12 +60,12 @@ public class TrackBall implements MouseListener, MouseMotionListener, RotationCo
     /** 
      * previous track ball vector 
      */
-    private Vector3f tbv0 = new Vector3f();
+    private Vector3d tbv0 = new Vector3d();
 
     /** 
      * current track ball vector 
      */
-    private Vector3f tbv1 = new Vector3f();
+    private Vector3d tbv1 = new Vector3d();
             
     /**
      * Our current transformation 
@@ -96,16 +100,25 @@ public class TrackBall implements MouseListener, MouseMotionListener, RotationCo
      * @param v
      * @param vnp
      */
-    private void setTrackballVector( Point point, Vector3f v ) { 
+    private void setTrackballVector( Point point, Vector3d v ) { 
         int width = trackingSource.getWidth();
         int height = trackingSource.getHeight();
 
     	// TODO: Objective 6: Implement the TrackBall rotation
+        
+    	double smallestDimension = (width < height ? width : height);
+    	double r = trackballFit.getValue() * smallestDimension / 4;
     	
-
-
+    	
+    	double x = point.getX() - (width / 2);
+    	double y = point.getY() - (height / 2);
+    	double z = 0;
+    	
+    	if((x*x) + (y*y) < (r*r))
+    		z = Math.sqrt((r*r) - (x*x) - (y*y));
         
-        
+    	v.set(x,y,z);
+    	v.normalize();
     }    
 
     public void mousePressed(MouseEvent e) {
@@ -117,8 +130,23 @@ public class TrackBall implements MouseListener, MouseMotionListener, RotationCo
         setTrackballVector( e.getPoint(), tbv1 );
                 
     	// TODO: Objective 6: Implement the TrackBall rotation
-
-
+        Vector3d axis = new Vector3d();
+        
+        axis.cross(tbv1, tbv0);
+              
+        double angle = tbv1.dot(tbv0);
+        angle = angle / (2 * Math.PI) * trackballGain.getValue();
+        
+        AxisAngle4d axisAngle = new AxisAngle4d();
+        axisAngle.set(axis, angle);
+        
+        Matrix4d transform = new Matrix4d();
+        transform.set(axisAngle);
+        transform.mul(bakedTransformation);
+        
+        bakedTransformation.set(transform);
+        
+        
         
         
         
